@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(if exist node_modules rmdir /s /q node_modules)",
+      "Bash(if exist package-lock.json del package-lock.json)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx electron .)",
+      "Bash(npx electron --version)",
+      "Bash(npx electron test-electron.js)",
+      "Bash(timeout 3 npx:*)",
+      "Bash(timeout 5 npx electron:*)",
+      "Bash(./node_modules/.bin/electron:*)",
+      "Bash(timeout 5 node_modules/electron/dist/electron.exe:*)",
+      "Bash(timeout 5 npm start)",
+      "Bash(npm install:*)",
+      "Bash(test:*)",
+      "Bash(timeout 5 ./node_modules/electron/dist/electron.exe:*)",
+      "Bash(npm run build:icon:*)"
+    ]
+  }
+}

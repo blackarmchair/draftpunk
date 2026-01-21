@@ -1,0 +1,39 @@
+{
+  "appId": "com.draftpunk.app",
+  "productName": "Draft Punk",
+  "buildDependenciesFromSource": false,
+  "nodeGypRebuild": false,
+  "directories": {
+    "output": "dist"
+  },
+  "files": [
+    "out",
+    "dist"
+  ],
+  "win": {
+    "target": [
+      {
+        "target": "nsis",
+        "arch": ["x64"]
+      },
+      {
+        "target": "msi",
+        "arch": ["x64"]
+      }
+    ],
+    "icon": "build/icon.ico"
+  },
+  "msi": {
+    "oneClick": false,
+    "perMachine": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "menuCategory": true
+  },
+  "mac": {
+    "target": "dmg"
+  },
+  "linux": {
+    "target": "AppImage"
+  }
+}

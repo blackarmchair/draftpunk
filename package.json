@@ -1,0 +1,31 @@
+{
+  "name": "draft-punk",
+  "version": "1.0.0",
+  "description": "Sleeper dynasty draft board tracker",
+  "main": "out/main/index.js",
+  "author": "amberlampse",
+  "license": "MIT",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "package": "electron-vite build && electron-builder",
+    "package:win": "electron-vite build && electron-builder --win",
+    "package:msi": "electron-vite build && electron-builder --win msi",
+    "build:icon": "electron-icon-builder --input=./assets/draftpunk_icon_1024.png --output=./build --flatten"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "@types/react": "^18.2.45",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "electron": "^30.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-icon-builder": "^2.0.1",
+    "electron-vite": "^2.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.10"
+  }
+}
