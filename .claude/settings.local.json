@@ -17,7 +17,8 @@
       "Bash(npm install:*)",
       "Bash(test:*)",
       "Bash(timeout 5 ./node_modules/electron/dist/electron.exe:*)",
-      "Bash(npm run build:icon:*)"
+      "Bash(npm run build:icon:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

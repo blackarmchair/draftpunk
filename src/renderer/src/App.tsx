@@ -2,13 +2,18 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Settings } from './components/Settings'
 import { BoardTable } from './components/BoardTable'
 import { LogPanel } from './components/LogPanel'
+import { PickTimeline } from './components/PickTimeline'
+import { MyTeam } from './components/MyTeam'
 import { SleeperService } from './services/sleeper'
 import { parseCSV } from './utils/csvParser'
-import { RankingRow, DraftSettings, SyncStatus, LogEntry } from './types'
+import { RankingRow, DraftSettings, SyncStatus, LogEntry, DraftPick } from './types'
 import './App.css'
 
 const MAX_LOGS = 10
 const STORED_CSVS_KEY = 'draft-punk-stored-csvs'
+const MY_USER_IDS_KEY = 'draft-punk-my-user-ids'
+
+type ActiveTab = 'board' | 'myteam'
 
 interface StoredCSV {
   id: string
@@ -29,10 +34,13 @@ export function App() {
   const [logs, setLogs] = useState<LogEntry[]>([])
   const [storedCSVs, setStoredCSVs] = useState<StoredCSV[]>([])
   const [selectedCSVId, setSelectedCSVId] = useState<string | null>(null)
+  const [draftPicks, setDraftPicks] = useState<DraftPick[]>([])
+  const [myUserIds, setMyUserIds] = useState<Set<string>>(new Set())
+  const [activeTab, setActiveTab] = useState<ActiveTab>('board')
 
   const sleeperService = useRef<SleeperService>(new SleeperService())
 
-  // Load stored CSVs from localStorage on mount
+  // Load stored CSVs and my picks from localStorage on mount
   useEffect(() => {
     const stored = localStorage.getItem(STORED_CSVS_KEY)
     if (stored) {
@@ -41,6 +49,16 @@ export function App() {
         setStoredCSVs(csvs)
       } catch (error) {
         console.error('Failed to load stored CSVs:', error)
+      }
+    }
+
+    const storedUserIds = localStorage.getItem(MY_USER_IDS_KEY)
+    if (storedUserIds) {
+      try {
+        const userIds: string[] = JSON.parse(storedUserIds)
+        setMyUserIds(new Set(userIds))
+      } catch (error) {
+        console.error('Failed to load my user IDs:', error)
       }
     }
   }, [])
@@ -147,6 +165,9 @@ export function App() {
             })
           })
         },
+        onDraftPicksUpdate: (picks) => {
+          setDraftPicks(picks)
+        },
         onError: (error) => {
           setSyncStatus(prev => ({ ...prev, error }))
           addLog(`Sync error: ${error}`, 'error')
@@ -182,6 +203,30 @@ export function App() {
     addLog(`Manually toggled: ${rankings[index].name}`, 'info')
   }
 
+  const handleToggleMyPick = (pickNo: number) => {
+    const pick = draftPicks.find(p => p.pickNo === pickNo)
+    if (!pick || !pick.pickedBy) return
+
+    const userId = pick.pickedBy
+    const wasMyPick = myUserIds.has(userId)
+
+    setMyUserIds(prev => {
+      const updated = new Set(prev)
+      if (updated.has(userId)) {
+        updated.delete(userId)
+      } else {
+        updated.add(userId)
+      }
+      // Persist to localStorage
+      localStorage.setItem(MY_USER_IDS_KEY, JSON.stringify([...updated]))
+      return updated
+    })
+
+    const userPicks = draftPicks.filter(p => p.pickedBy === userId)
+    const action = wasMyPick ? 'Unmarked' : 'Marked'
+    addLog(`${action} ${userPicks.length} picks as mine (user: ${userId})`, 'info')
+  }
+
   const handleStopPolling = () => {
     sleeperService.current.stopPolling()
     setSyncStatus(prev => ({ ...prev, isPolling: false }))
@@ -202,6 +247,10 @@ export function App() {
       isPolling: false
     })
     setLogs([])
+    setDraftPicks([])
+    setMyUserIds(new Set())
+    setActiveTab('board')
+    localStorage.removeItem(MY_USER_IDS_KEY)
 
     addLog('Reset complete - ready for new draft', 'success')
   }
@@ -214,6 +263,11 @@ export function App() {
   }, [])
 
   const takenCount = rankings.filter(r => r.taken).length
+
+  // Derive myPickIds from myUserIds for the components
+  const myPickIds = new Set(
+    draftPicks.filter(p => myUserIds.has(p.pickedBy)).map(p => p.pickNo)
+  )
 
   return (
     <div className="app">
@@ -322,7 +376,36 @@ export function App() {
               </ol>
             </div>
           ) : (
-            <BoardTable rankings={rankings} onToggleTaken={handleToggleTaken} />
+            <>
+              {syncStatus.isPolling && (
+                <PickTimeline
+                  picks={draftPicks}
+                  myPickIds={myPickIds}
+                  onToggleMyPick={handleToggleMyPick}
+                />
+              )}
+
+              <div className="tab-navigation">
+                <button
+                  className={`tab-button ${activeTab === 'board' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('board')}
+                >
+                  Draft Board
+                </button>
+                <button
+                  className={`tab-button ${activeTab === 'myteam' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('myteam')}
+                >
+                  My Team ({myPickIds.size})
+                </button>
+              </div>
+
+              {activeTab === 'board' ? (
+                <BoardTable rankings={rankings} onToggleTaken={handleToggleTaken} />
+              ) : (
+                <MyTeam picks={draftPicks} myPickIds={myPickIds} />
+              )}
+            </>
           )}
         </main>
       </div>

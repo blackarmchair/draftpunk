@@ -40,3 +40,13 @@ export interface LogEntry {
   message: string
   type: 'info' | 'error' | 'success'
 }
+
+export interface DraftPick {
+  pickNo: number
+  pickDisplay: string // e.g., "2.09"
+  playerName: string
+  position: string
+  team: string
+  pickedBy: string
+  isMyPick: boolean
+}

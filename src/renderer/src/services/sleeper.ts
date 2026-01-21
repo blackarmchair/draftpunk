@@ -1,4 +1,4 @@
-import { SleeperPick } from '../types'
+import { DraftPick } from '../types'
 import { normalizeName } from '../utils/normalizeName'
 import { applyAlias } from '../data/aliases'
 
@@ -24,6 +24,7 @@ export class SleeperService {
   private rookiePickMode: boolean = false
   private leagueSize: number = 12
   private onPicksUpdate: ((pickedNames: Set<string>) => void) | null = null
+  private onDraftPicksUpdate: ((picks: DraftPick[]) => void) | null = null
   private onError: ((error: string) => void) | null = null
   private onSync: ((picksCount: number) => void) | null = null
 
@@ -37,6 +38,7 @@ export class SleeperService {
     leagueSize: number,
     callbacks: {
       onPicksUpdate: (pickedNames: Set<string>) => void
+      onDraftPicksUpdate: (picks: DraftPick[]) => void
       onError: (error: string) => void
       onSync: (picksCount: number) => void
     }
@@ -48,6 +50,7 @@ export class SleeperService {
     this.rookiePickMode = rookiePickMode
     this.leagueSize = leagueSize
     this.onPicksUpdate = callbacks.onPicksUpdate
+    this.onDraftPicksUpdate = callbacks.onDraftPicksUpdate
     this.onError = callbacks.onError
     this.onSync = callbacks.onSync
 
@@ -91,10 +94,11 @@ export class SleeperService {
 
       // Extract and normalize player names
       const pickedNames = new Set<string>()
+      const draftPicks: DraftPick[] = []
       let kickerCount = 0
 
       for (const pick of picks) {
-        const position = pick.metadata?.position?.toUpperCase()
+        const position = pick.metadata?.position?.toUpperCase() || ''
 
         // Handle rookie pick mode: kickers represent rookie picks
         if (this.rookiePickMode && position === 'K') {
@@ -106,6 +110,17 @@ export class SleeperService {
 
           const normalized = normalizeName(rookiePickName)
           pickedNames.add(normalized)
+
+          // Add to draft picks array
+          draftPicks.push({
+            pickNo: pick.pick_no,
+            pickDisplay: this.formatPickDisplay(pick.pick_no),
+            playerName: rookiePickName,
+            position: 'PICK',
+            team: '',
+            pickedBy: pick.picked_by || '',
+            isMyPick: false
+          })
           continue
         }
 
@@ -114,12 +129,26 @@ export class SleeperService {
           const normalized = normalizeName(playerName)
           const withAlias = applyAlias(normalized)
           pickedNames.add(withAlias)
+
+          // Add to draft picks array
+          draftPicks.push({
+            pickNo: pick.pick_no,
+            pickDisplay: this.formatPickDisplay(pick.pick_no),
+            playerName,
+            position: position || '',
+            team: pick.metadata?.team || '',
+            pickedBy: pick.picked_by || '',
+            isMyPick: false
+          })
         }
       }
 
       // Notify callbacks
       if (this.onPicksUpdate) {
         this.onPicksUpdate(pickedNames)
+      }
+      if (this.onDraftPicksUpdate) {
+        this.onDraftPicksUpdate(draftPicks)
       }
       if (this.onSync) {
         this.onSync(picks.length)
@@ -151,6 +180,15 @@ export class SleeperService {
     }
 
     return null
+  }
+
+  /**
+   * Format pick number as round.pick (e.g., 2.09)
+   */
+  private formatPickDisplay(pickNo: number): string {
+    const round = Math.ceil(pickNo / this.leagueSize)
+    const pickInRound = ((pickNo - 1) % this.leagueSize) + 1
+    return `${round}.${pickInRound.toString().padStart(2, '0')}`
   }
 
   /**
