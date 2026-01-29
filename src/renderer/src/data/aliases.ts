@@ -32,7 +32,6 @@ export const nameAliases: Record<string, string> = {
   'j k dobbins': 'jk dobbins',
   'tj hockenson': 't j hockenson',
   't j hockenson': 'tj hockenson',
-  // Add more aliases as needed
 }
 
 /**

@@ -1021,3 +1021,551 @@ tr.taken {
   font-size: 0.8rem;
   color: #808080;
 }
+
+/* ============================================================
+   STANDINGS PAGE STYLES
+   ============================================================ */
+
+.no-rankings-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.no-rankings-view .standings-page {
+  flex: 1;
+  min-height: 0;
+  height: auto;
+}
+
+.standings-hint {
+  margin-top: 1.5rem;
+  color: #808080;
+  font-size: 0.95rem;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: #f907fc;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.link-button:hover {
+  color: #00ffff;
+}
+
+.standings-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 1rem;
+}
+
+.standings-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+/* League Selector */
+.league-selector {
+  flex: 1;
+  min-width: 300px;
+}
+
+.league-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.league-input-group label {
+  font-size: 0.9rem;
+  color: #00ffff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.input-with-history {
+  position: relative;
+}
+
+.league-input-group input {
+  width: 100%;
+  padding: 0.7rem;
+  background: #1a1a2e;
+  border: 2px solid #2a1f3d;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  color: #e0e0e0;
+  font-family: 'Inter', sans-serif;
+}
+
+.league-input-group input:focus {
+  outline: none;
+  border-color: #f907fc;
+  box-shadow: 0 0 10px rgba(245, 7, 252, 0.3);
+}
+
+.history-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #1a1a2e;
+  border: 2px solid #2a1f3d;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  z-index: 100;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.history-item {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  background: transparent;
+  border: none;
+  color: #c0c0c0;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-family: 'Courier New', monospace;
+}
+
+.history-item:hover {
+  background: rgba(245, 7, 252, 0.15);
+  color: #e0e0e0;
+}
+
+.load-league-btn {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #00ffff 0%, #00d9ff 100%);
+  color: #0a0a0f;
+  border: 2px solid #00ffff;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.load-league-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #00d9ff 0%, #00ffff 100%);
+  box-shadow: 0 4px 15px rgba(0, 255, 255, 0.4);
+}
+
+.load-league-btn:disabled {
+  background: #2a2a3a;
+  border-color: #1a1a2e;
+  color: #666;
+  cursor: not-allowed;
+}
+
+.league-name {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, #1a2a1f 0%, #0f1a0f 100%);
+  border-left: 3px solid #00ff88;
+  color: #00ff88;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.league-error {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(255, 68, 102, 0.15);
+  border-left: 3px solid #ff4466;
+  color: #ff4466;
+  font-size: 0.9rem;
+}
+
+.standings-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.week-info,
+.season-info {
+  padding: 0.5rem 1rem;
+  background: #1a1a2e;
+  border: 2px solid #2a1f3d;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #00ffff;
+  font-weight: 600;
+}
+
+/* Standings Sub-Navigation */
+.standings-sub-nav {
+  display: flex;
+  gap: 0;
+  background: #141420;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 2px solid #2a1f3d;
+}
+
+.sub-tab-button {
+  flex: 1;
+  padding: 0.85rem 1.25rem;
+  background: transparent;
+  border: none;
+  color: #808080;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-family: 'Bebas Neue', cursive;
+}
+
+.sub-tab-button:hover {
+  background: rgba(245, 7, 252, 0.1);
+  color: #e0e0e0;
+}
+
+.sub-tab-button.active {
+  background: linear-gradient(135deg, #b537f2 0%, #f907fc 100%);
+  color: white;
+}
+
+.sub-tab-button:not(:last-child) {
+  border-right: 2px solid #2a1f3d;
+}
+
+/* Standings Controls */
+.standings-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: #141420;
+  border-radius: 8px;
+  border: 2px solid #2a1f3d;
+}
+
+.data-strategy-selector {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.data-strategy-selector label {
+  font-size: 0.85rem;
+  color: #00ffff;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.data-strategy-selector select {
+  padding: 0.5rem 0.75rem;
+  background: #1a1a2e;
+  border: 2px solid #2a1f3d;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.data-strategy-selector select:focus {
+  outline: none;
+  border-color: #f907fc;
+}
+
+/* Standings Content */
+.standings-content {
+  flex: 1;
+  overflow-y: auto;
+  background: #141420;
+  border-radius: 8px;
+  border: 2px solid #2a1f3d;
+}
+
+.standings-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #808080;
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #2a1f3d;
+  border-top: 4px solid #f907fc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 1rem;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.loading-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+.standings-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: #808080;
+  text-align: center;
+}
+
+/* Standings Table Container */
+.standings-table-container {
+  padding: 1rem;
+}
+
+.standings-filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.filter-group label {
+  font-size: 0.85rem;
+  color: #00ffff;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.filter-group select {
+  padding: 0.5rem 0.75rem;
+  background: #1a1a2e;
+  border: 2px solid #2a1f3d;
+  border-radius: 4px;
+  color: #e0e0e0;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+/* Tier Sections */
+.tier-section {
+  margin-bottom: 1.5rem;
+}
+
+.tier-section .tier-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, #2a1f3d 0%, #1a1a2e 100%);
+  border-radius: 8px 8px 0 0;
+  margin-bottom: 0;
+}
+
+.tier-badge {
+  padding: 0.35rem 0.85rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.tier-elite { background: linear-gradient(135deg, #ffd700 0%, #ff9500 100%); color: #0a0a0f; }
+.tier-wr1, .tier-rb1 { background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%); color: #0a0a0f; }
+.tier-wr2-te1, .tier-rb2 { background: linear-gradient(135deg, #cd7f32 0%, #a65a20 100%); color: white; }
+.tier-wr3-flex, .tier-rb3-flex { background: #2a1f3d; color: #f907fc; border: 1px solid #f907fc; }
+.tier-deep-flex { background: #1a1a2e; color: #00ffff; border: 1px solid #00ffff; }
+.tier-bench { background: #1a1a2e; color: #666; border: 1px solid #333; }
+
+/* Standings Tables */
+.standings-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #0f0f1a;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+}
+
+.standings-table thead {
+  background: #1a1a2e;
+}
+
+.standings-table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #00ffff;
+  border-bottom: 2px solid #2a1f3d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+}
+
+.standings-table th.sorted {
+  color: #f907fc;
+}
+
+.standings-table td {
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid #1a1a2e;
+  font-size: 0.9rem;
+  color: #c0c0c0;
+}
+
+.standings-table tr:hover {
+  background: rgba(245, 7, 252, 0.08);
+}
+
+/* Position colors */
+.pos-qb { color: #ff6b6b !important; }
+.pos-rb { color: #00ff88 !important; }
+.pos-wr { color: #00d4ff !important; }
+.pos-te { color: #ff9f43 !important; }
+
+/* PWOPR/PWRB Value colors */
+.pwopr-elite, .pwrb-elite { color: #ffd700 !important; font-weight: 700; }
+.pwopr-wr1, .pwrb-rb1 { color: #c0c0c0 !important; font-weight: 600; }
+.pwopr-wr2, .pwrb-rb2 { color: #cd7f32 !important; }
+.pwopr-wr3, .pwrb-rb3 { color: #f907fc !important; }
+.pwopr-low, .pwrb-low { color: #666 !important; }
+
+/* Role colors */
+.role-lead { color: #00ff88 !important; font-weight: 600; }
+.role-committee { color: #ff9f43 !important; }
+.role-backup { color: #666 !important; }
+
+/* Injury status colors */
+.injury-ir, .injury-out { color: #ff4466 !important; font-weight: 600; }
+.injury-doubtful { color: #ff6b6b !important; }
+.injury-questionable { color: #ff9f43 !important; }
+.injury-probable { color: #00ff88 !important; }
+
+/* Best Ball Table */
+.bestball-table tr.top-pick {
+  background: rgba(0, 255, 136, 0.1);
+}
+
+.bestball-table tr.top-pick td {
+  color: #00ff88;
+}
+
+.draft-order {
+  font-family: 'Bebas Neue', cursive;
+  font-size: 1.3rem;
+  color: #f907fc;
+}
+
+.bestball-legend {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #1a1a2e;
+  border-radius: 4px;
+  display: flex;
+  gap: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #808080;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+}
+
+.top-pick-color {
+  background: rgba(0, 255, 136, 0.3);
+  border: 2px solid #00ff88;
+}
+
+/* Power Rankings */
+.power-rankings-table .team-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.power-rankings-table .team-name {
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+.power-rankings-table .team-nickname {
+  font-size: 0.8rem;
+  color: #808080;
+  font-style: italic;
+}
+
+.power-rankings-table .value-total {
+  font-weight: 700;
+  color: #f907fc;
+}
+
+.value-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #0f0f1a;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.value-bar {
+  height: 100%;
+  display: flex;
+  transition: width 0.3s;
+}
+
+.value-segment {
+  height: 100%;
+}
+
+.qb-segment { background: #ff6b6b; }
+.rb-segment { background: #00ff88; }
+.wr-segment { background: #00d4ff; }
+.te-segment { background: #ff9f43; }
+
+.power-rankings-legend {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: #1a1a2e;
+  border-radius: 4px;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.qb-color { background: #ff6b6b; }
+.rb-color { background: #00ff88; }
+.wr-color { background: #00d4ff; }
+.te-color { background: #ff9f43; }

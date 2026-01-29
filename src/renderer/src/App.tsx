@@ -4,16 +4,15 @@ import { BoardTable } from './components/BoardTable'
 import { LogPanel } from './components/LogPanel'
 import { PickTimeline } from './components/PickTimeline'
 import { MyTeam } from './components/MyTeam'
+import { StandingsPage } from './components/StandingsPage'
 import { SleeperService } from './services/sleeper'
 import { parseCSV } from './utils/csvParser'
-import { RankingRow, DraftSettings, SyncStatus, LogEntry, DraftPick } from './types'
+import { RankingRow, DraftSettings, SyncStatus, LogEntry, DraftPick, ActiveTab } from './types'
 import './App.css'
 
 const MAX_LOGS = 10
 const STORED_CSVS_KEY = 'draft-punk-stored-csvs'
 const MY_USER_IDS_KEY = 'draft-punk-my-user-ids'
-
-type ActiveTab = 'board' | 'myteam'
 
 interface StoredCSV {
   id: string
@@ -37,6 +36,7 @@ export function App() {
   const [draftPicks, setDraftPicks] = useState<DraftPick[]>([])
   const [myUserIds, setMyUserIds] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<ActiveTab>('board')
+  const [standingsLeagueId, setStandingsLeagueId] = useState<string>('')
 
   const sleeperService = useRef<SleeperService>(new SleeperService())
 
@@ -366,14 +366,38 @@ export function App() {
 
         <main className="main-content">
           {rankings.length === 0 ? (
-            <div className="welcome">
-              <h2>Welcome to Draft Punk!</h2>
-              <p>Get started by loading your rankings CSV file.</p>
-              <ol>
-                <li>Click "Load CSV File" to select your rankings</li>
-                <li>Enter your Sleeper Draft ID in the settings</li>
-                <li>Click "Start Polling" to begin tracking picks</li>
-              </ol>
+            <div className="no-rankings-view">
+              <div className="tab-navigation">
+                <button
+                  className={`tab-button ${activeTab !== 'standings' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('board')}
+                >
+                  Draft Board
+                </button>
+                <button
+                  className={`tab-button ${activeTab === 'standings' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('standings')}
+                >
+                  Standings
+                </button>
+              </div>
+
+              {activeTab === 'standings' ? (
+                <StandingsPage initialLeagueId={standingsLeagueId} />
+              ) : (
+                <div className="welcome">
+                  <h2>Welcome to Draft Punk!</h2>
+                  <p>Get started by loading your rankings CSV file.</p>
+                  <ol>
+                    <li>Click "Load CSV File" to select your rankings</li>
+                    <li>Enter your Sleeper Draft ID in the settings</li>
+                    <li>Click "Start Polling" to begin tracking picks</li>
+                  </ol>
+                  <p className="standings-hint">
+                    Or check out the <button className="link-button" onClick={() => setActiveTab('standings')}>Standings</button> tab to view league projections and power rankings.
+                  </p>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -398,12 +422,22 @@ export function App() {
                 >
                   My Team ({myPickIds.size})
                 </button>
+                <button
+                  className={`tab-button ${activeTab === 'standings' ? 'active' : ''}`}
+                  onClick={() => setActiveTab('standings')}
+                >
+                  Standings
+                </button>
               </div>
 
-              {activeTab === 'board' ? (
+              {activeTab === 'board' && (
                 <BoardTable rankings={rankings} onToggleTaken={handleToggleTaken} />
-              ) : (
+              )}
+              {activeTab === 'myteam' && (
                 <MyTeam picks={draftPicks} myPickIds={myPickIds} />
+              )}
+              {activeTab === 'standings' && (
+                <StandingsPage initialLeagueId={standingsLeagueId} />
               )}
             </>
           )}
