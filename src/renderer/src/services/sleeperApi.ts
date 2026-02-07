@@ -3,17 +3,74 @@
  * Consolidated API fetchers for league data, rosters, projections, and stats
  */
 
-import type {
-  SleeperLeague,
-  SleeperRoster,
-  SleeperUser,
-  MetaMap,
-  StatRow,
-  NFLState,
-  Scoring,
-  SleeperProjection,
-} from '../types'
-import { scorePlayer } from '../utils/positionHelpers'
+import { normalizeName } from '../utils/normalizeName'
+
+// Inline types for Sleeper API responses (standings types removed from main types.ts)
+interface SleeperLeague {
+  league_id: string
+  name: string
+  status: string
+  sport: string
+  season: string
+  season_type: string
+  total_rosters: number
+  roster_positions: string[]
+  scoring_settings: Record<string, number>
+  settings: { playoff_teams?: number; [key: string]: unknown }
+}
+
+interface SleeperRoster {
+  roster_id: number
+  owner_id: string
+  players: string[]
+  starters: string[]
+  reserve: string[] | null
+  taxi: string[] | null
+  settings: {
+    wins: number; losses: number; ties: number; fpts: number
+    fpts_decimal?: number; fpts_against?: number; fpts_against_decimal?: number
+    ppts?: number; ppts_decimal?: number
+  }
+}
+
+interface SleeperUser {
+  user_id: string
+  display_name: string
+  avatar: string | null
+  metadata?: { team_name?: string; [key: string]: unknown }
+}
+
+type MetaMap = Record<string, {
+  player_id: string; full_name: string; position: string; team: string
+  fantasy_positions: string[]; search_full_name: string; active: boolean
+  injury_status: string | null; age: number; years_exp: number
+  [key: string]: unknown
+}>
+
+type Scoring = Record<string, number>
+
+interface NFLState {
+  week: number; leg: number; season: string; season_type: string
+  league_season: string; previous_season: string; season_start_date: string
+  display_week: number; league_create_season: string; season_has_scores: boolean
+}
+
+interface SleeperProjection {
+  status: string | null; date: string; stats: Record<string, number>
+  category: string; last_modified: number; week: number; sport: string
+  season_type: string; season: string; team: string; player_id: string
+  updated_at: number; game_id: string; company: string; opponent: string
+  player: {
+    fantasy_positions: string[]; first_name: string; last_name: string
+    position: string; team: string; injury_status: string | null
+    team_abbr: string | null; years_exp: number
+    injury_body_part: string | null; injury_notes: string | null
+    injury_start_date: string | null; team_changed_at: string | null
+    news_updated: number; metadata: { channel_id: string; rookie_year?: string; [key: string]: unknown }
+  }
+}
+
+type StatRow = Record<string, number>
 
 const SLEEPER_API_BASE = 'https://api.sleeper.app/v1'
 const CURRENT_YEAR = 2025
@@ -254,7 +311,8 @@ export async function getPriorYearPPGForPlayers(
       const weekly = await getWeeklyStats(year, wk)
       for (const row of weekly) {
         if (!target.has(row.player_id)) continue
-        const pts = scorePlayer(row.stats ?? {}, scoring)
+        const stats = row.stats ?? {}
+        const pts = Object.entries(scoring).reduce((sum, [k, v]) => sum + ((stats as Record<string, number>)[k] ?? 0) * v, 0)
         if (pts === 0 && !row.stats) continue
         const cur = agg.get(row.player_id) ?? { total: 0, games: 0 }
         agg.set(row.player_id, { total: cur.total + pts, games: cur.games + 1 })
@@ -431,6 +489,37 @@ export async function loadLeagueData(leagueId: string): Promise<{
   ])
 
   return { league, rosters, users, playersMeta }
+}
+
+/**
+ * Fetch all rostered player normalized names for a league.
+ * Returns a Set of normalized names (via normalizeName) for every player
+ * on any roster in the league. Used for display-only filtering.
+ */
+export async function getRosteredPlayerNames(leagueId: string): Promise<Set<string>> {
+  const [rosters, playersMeta] = await Promise.all([
+    getRosters(leagueId),
+    getPlayersMeta(),
+  ])
+
+  const rosteredIds = new Set<string>()
+  for (const roster of rosters) {
+    if (roster.players) {
+      for (const pid of roster.players) {
+        rosteredIds.add(pid)
+      }
+    }
+  }
+
+  const names = new Set<string>()
+  for (const pid of rosteredIds) {
+    const meta = playersMeta[pid]
+    if (meta?.full_name) {
+      names.add(normalizeName(meta.full_name))
+    }
+  }
+
+  return names
 }
 
 export { CURRENT_YEAR, WEEKS }

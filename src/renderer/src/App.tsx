@@ -4,10 +4,10 @@ import { BoardTable } from './components/BoardTable'
 import { LogPanel } from './components/LogPanel'
 import { PickTimeline } from './components/PickTimeline'
 import { MyTeam } from './components/MyTeam'
-import { StandingsPage } from './components/StandingsPage'
 import { SleeperService } from './services/sleeper'
+import { getRosteredPlayerNames } from './services/sleeperApi'
 import { parseCSV } from './utils/csvParser'
-import { RankingRow, DraftSettings, SyncStatus, LogEntry, DraftPick, ActiveTab } from './types'
+import { RankingRow, DraftSettings, SyncStatus, LogEntry, DraftPick } from './types'
 import './App.css'
 
 const MAX_LOGS = 10
@@ -35,8 +35,10 @@ export function App() {
   const [selectedCSVId, setSelectedCSVId] = useState<string | null>(null)
   const [draftPicks, setDraftPicks] = useState<DraftPick[]>([])
   const [myUserIds, setMyUserIds] = useState<Set<string>>(new Set())
-  const [activeTab, setActiveTab] = useState<ActiveTab>('board')
-  const [standingsLeagueId, setStandingsLeagueId] = useState<string>('')
+  const [activeTab, setActiveTab] = useState<'board' | 'myteam'>('board')
+  const [rosterLeagueId, setRosterLeagueId] = useState<string>('')
+  const [rosteredNames, setRosteredNames] = useState<Set<string>>(new Set())
+  const [rosterLoading, setRosterLoading] = useState(false)
 
   const sleeperService = useRef<SleeperService>(new SleeperService())
 
@@ -233,6 +235,30 @@ export function App() {
     addLog('Stopped polling', 'info')
   }
 
+  const handleLoadRosters = async () => {
+    if (!rosterLeagueId.trim()) {
+      addLog('League ID is required', 'error')
+      return
+    }
+    setRosterLoading(true)
+    try {
+      const names = await getRosteredPlayerNames(rosterLeagueId.trim())
+      setRosteredNames(names)
+      addLog(`Loaded ${names.size} rostered players from league`, 'success')
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Failed to load league rosters'
+      addLog(message, 'error')
+    } finally {
+      setRosterLoading(false)
+    }
+  }
+
+  const handleClearRosters = () => {
+    setRosteredNames(new Set())
+    setRosterLeagueId('')
+    addLog('Cleared rostered player filter', 'info')
+  }
+
   const handleReset = () => {
     // Stop polling if active
     sleeperService.current.stopPolling()
@@ -249,6 +275,8 @@ export function App() {
     setLogs([])
     setDraftPicks([])
     setMyUserIds(new Set())
+    setRosteredNames(new Set())
+    setRosterLeagueId('')
     setActiveTab('board')
     localStorage.removeItem(MY_USER_IDS_KEY)
 
@@ -336,6 +364,39 @@ export function App() {
             isPolling={syncStatus.isPolling}
           />
 
+          <div className="file-section">
+            <h2>League Rosters</h2>
+            <div className="roster-league-input">
+              <input
+                type="text"
+                placeholder="Sleeper League ID"
+                value={rosterLeagueId}
+                onChange={(e) => setRosterLeagueId(e.target.value)}
+                className="search-input"
+                disabled={rosterLoading}
+              />
+              <div className="roster-buttons">
+                <button
+                  onClick={handleLoadRosters}
+                  className="load-button"
+                  disabled={rosterLoading || !rosterLeagueId.trim()}
+                >
+                  {rosterLoading ? 'Loading...' : 'Load'}
+                </button>
+                {rosteredNames.size > 0 && (
+                  <button onClick={handleClearRosters} className="reset-button">
+                    Clear
+                  </button>
+                )}
+              </div>
+            </div>
+            {rosteredNames.size > 0 && (
+              <div className="file-info">
+                <small>{rosteredNames.size} rostered players loaded</small>
+              </div>
+            )}
+          </div>
+
           {syncStatus.isPolling && (
             <div className="sync-status">
               <div className="status-item">
@@ -366,38 +427,14 @@ export function App() {
 
         <main className="main-content">
           {rankings.length === 0 ? (
-            <div className="no-rankings-view">
-              <div className="tab-navigation">
-                <button
-                  className={`tab-button ${activeTab !== 'standings' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('board')}
-                >
-                  Draft Board
-                </button>
-                <button
-                  className={`tab-button ${activeTab === 'standings' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('standings')}
-                >
-                  Standings
-                </button>
-              </div>
-
-              {activeTab === 'standings' ? (
-                <StandingsPage initialLeagueId={standingsLeagueId} />
-              ) : (
-                <div className="welcome">
-                  <h2>Welcome to Draft Punk!</h2>
-                  <p>Get started by loading your rankings CSV file.</p>
-                  <ol>
-                    <li>Click "Load CSV File" to select your rankings</li>
-                    <li>Enter your Sleeper Draft ID in the settings</li>
-                    <li>Click "Start Polling" to begin tracking picks</li>
-                  </ol>
-                  <p className="standings-hint">
-                    Or check out the <button className="link-button" onClick={() => setActiveTab('standings')}>Standings</button> tab to view league projections and power rankings.
-                  </p>
-                </div>
-              )}
+            <div className="welcome">
+              <h2>Welcome to Draft Punk!</h2>
+              <p>Get started by loading your rankings CSV file.</p>
+              <ol>
+                <li>Click "Load CSV File" to select your rankings</li>
+                <li>Enter your Sleeper Draft ID in the settings</li>
+                <li>Click "Start Polling" to begin tracking picks</li>
+              </ol>
             </div>
           ) : (
             <>
@@ -422,22 +459,13 @@ export function App() {
                 >
                   My Team ({myPickIds.size})
                 </button>
-                <button
-                  className={`tab-button ${activeTab === 'standings' ? 'active' : ''}`}
-                  onClick={() => setActiveTab('standings')}
-                >
-                  Standings
-                </button>
               </div>
 
               {activeTab === 'board' && (
-                <BoardTable rankings={rankings} onToggleTaken={handleToggleTaken} />
+                <BoardTable rankings={rankings} onToggleTaken={handleToggleTaken} rosteredNames={rosteredNames} />
               )}
               {activeTab === 'myteam' && (
                 <MyTeam picks={draftPicks} myPickIds={myPickIds} />
-              )}
-              {activeTab === 'standings' && (
-                <StandingsPage initialLeagueId={standingsLeagueId} />
               )}
             </>
           )}

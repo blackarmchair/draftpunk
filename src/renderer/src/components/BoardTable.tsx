@@ -4,13 +4,17 @@ import { RankingRow } from '../types'
 interface BoardTableProps {
   rankings: RankingRow[]
   onToggleTaken: (index: number) => void
+  rosteredNames?: Set<string>
 }
 
-export function BoardTable({ rankings, onToggleTaken }: BoardTableProps) {
+export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTableProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [positionFilter, setPositionFilter] = useState('All')
   const [hideTaken, setHideTaken] = useState(true)
+  const [hideRostered, setHideRostered] = useState(false)
   const [groupByTier, setGroupByTier] = useState(true)
+
+  const hasRosteredData = rosteredNames != null && rosteredNames.size > 0
 
   // Get unique positions
   const positions = useMemo(() => {
@@ -39,9 +43,14 @@ export function BoardTable({ rankings, onToggleTaken }: BoardTableProps) {
         return false
       }
 
+      // Hide rostered filter
+      if (hideRostered && hasRosteredData && rosteredNames.has(ranking.normalizedName)) {
+        return false
+      }
+
       return true
     })
-  }, [rankings, searchQuery, positionFilter, hideTaken])
+  }, [rankings, searchQuery, positionFilter, hideTaken, hideRostered, hasRosteredData, rosteredNames])
 
   // Group by tier if enabled
   const groupedData = useMemo(() => {
@@ -115,6 +124,17 @@ export function BoardTable({ rankings, onToggleTaken }: BoardTableProps) {
             />
             Hide Taken
           </label>
+
+          {hasRosteredData && (
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={hideRostered}
+                onChange={(e) => setHideRostered(e.target.checked)}
+              />
+              Hide Rostered
+            </label>
+          )}
 
           <label className="checkbox-label">
             <input
