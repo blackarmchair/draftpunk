@@ -4,6 +4,4 @@ dist-electron
 out
 *.log
 .DS_Store
-
-# Ignore ONLY security audit logs from Claude (may contain sensitive info)
-.claude/features/*/*_security-review.md
+.claude
