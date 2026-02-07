@@ -9,7 +9,7 @@ interface BoardTableProps {
 
 export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTableProps) {
   const [searchQuery, setSearchQuery] = useState('')
-  const [positionFilter, setPositionFilter] = useState('All')
+  const [activePositions, setActivePositions] = useState<Set<string> | null>(null)
   const [hideTaken, setHideTaken] = useState(true)
   const [hideRostered, setHideRostered] = useState(false)
   const [groupByTier, setGroupByTier] = useState(true)
@@ -22,8 +22,22 @@ export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTabl
     rankings.forEach(r => {
       if (r.position) posSet.add(r.position.toUpperCase())
     })
-    return ['All', ...Array.from(posSet).sort()]
+    return Array.from(posSet).sort()
   }, [rankings])
+
+  // Initialize activePositions with all positions once they're available
+  const resolvedPositions = activePositions ?? new Set(positions)
+
+  const togglePosition = (pos: string) => {
+    const current = resolvedPositions
+    const next = new Set(current)
+    if (next.has(pos)) {
+      next.delete(pos)
+    } else {
+      next.add(pos)
+    }
+    setActivePositions(next)
+  }
 
   // Filter rankings
   const filteredRankings = useMemo(() => {
@@ -34,7 +48,7 @@ export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTabl
       }
 
       // Position filter
-      if (positionFilter !== 'All' && ranking.position.toUpperCase() !== positionFilter) {
+      if (!resolvedPositions.has(ranking.position.toUpperCase())) {
         return false
       }
 
@@ -50,7 +64,7 @@ export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTabl
 
       return true
     })
-  }, [rankings, searchQuery, positionFilter, hideTaken, hideRostered, hasRosteredData, rosteredNames])
+  }, [rankings, searchQuery, resolvedPositions, hideTaken, hideRostered, hasRosteredData, rosteredNames])
 
   // Group by tier if enabled
   const groupedData = useMemo(() => {
@@ -103,16 +117,18 @@ export function BoardTable({ rankings, onToggleTaken, rosteredNames }: BoardTabl
             onChange={(e) => setSearchQuery(e.target.value)}
             className="search-input"
           />
+        </div>
 
-          <select
-            value={positionFilter}
-            onChange={(e) => setPositionFilter(e.target.value)}
-            className="position-filter"
-          >
-            {positions.map(pos => (
-              <option key={pos} value={pos}>{pos}</option>
-            ))}
-          </select>
+        <div className="position-button-group">
+          {positions.map(pos => (
+            <button
+              key={pos}
+              className={`position-btn position-btn--${pos.toLowerCase()}${resolvedPositions.has(pos) ? ' active' : ''}`}
+              onClick={() => togglePosition(pos)}
+            >
+              {pos}
+            </button>
+          ))}
         </div>
 
         <div className="control-row">

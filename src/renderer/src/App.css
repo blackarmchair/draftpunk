@@ -749,21 +749,56 @@ body {
   box-shadow: 0 0 0 2px var(--accent-muted);
 }
 
-.position-filter {
-  padding: 0.5rem 0.65rem;
-  background: var(--bg-input);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  color: var(--text-primary);
-  cursor: pointer;
-  font-family: inherit;
+/* Position multi-select button group */
+.position-button-group {
+  display: flex;
+  gap: 2px;
+  background: var(--bg-surface);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 0.5rem;
 }
 
-.position-filter:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px var(--accent-muted);
+.position-btn {
+  flex: 1;
+  padding: 0.4rem 0.5rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s var(--ease-out);
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.position-btn:hover {
+  background: var(--bg-hover);
+  color: var(--text-secondary);
+}
+
+/* Selected positions */
+.position-btn.active {
+  color: var(--text-inverse);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Position-specific accent colors when active */
+.position-btn--qb.active { background: var(--pos-qb); }
+.position-btn--rb.active { background: var(--pos-rb); }
+.position-btn--wr.active { background: var(--pos-wr); }
+.position-btn--te.active { background: var(--pos-te); }
+.position-btn--k.active  { background: var(--pos-k); }
+.position-btn--def.active { background: var(--pos-def); }
+.position-btn--pick.active { background: var(--pos-pick); }
+
+/* Deselected positions fade out */
+.position-btn:not(.active) {
+  opacity: 0.5;
 }
 
 .table-container {
