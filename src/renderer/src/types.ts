@@ -50,3 +50,4 @@ export interface DraftPick {
   pickedBy: string
   isMyPick: boolean
 }
+
