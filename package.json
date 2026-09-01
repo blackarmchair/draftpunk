@@ -1,6 +1,6 @@
 {
   "name": "draft-punk",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Sleeper dynasty draft board tracker",
   "main": "out/main/index.js",
   "author": "amberlampse",
