@@ -49,5 +49,12 @@ export interface DraftPick {
   team: string
   pickedBy: string
   isMyPick: boolean
+  /** Draft slot this pick belongs to, used to group and order teams. */
+  draftSlot?: number
+  /**
+   * Rookie Pick Mode only: the pick's absolute position in the rookie draft
+   * (1-based). Used to price it against the RosterAudit pick curve.
+   */
+  rookiePickNumber?: number
 }
 
