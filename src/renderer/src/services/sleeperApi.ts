@@ -103,6 +103,54 @@ export async function getUsers(leagueId: string): Promise<SleeperUser[]> {
   return res.json()
 }
 
+export interface DraftTeams {
+  /** Sleeper user id -> display name (team name when the manager set one). */
+  ownerNames: Record<string, string>
+  /** Sleeper user id -> draft slot, used to order the board naturally. */
+  draftOrder: Record<string, number>
+  teams: number
+}
+
+interface SleeperDraft {
+  league_id?: string | null
+  draft_order?: Record<string, number> | null
+  slot_to_roster_id?: Record<string, number> | null
+  settings?: { teams?: number } | null
+}
+
+/**
+ * Resolve the managers in a draft.
+ *
+ * Picks only carry a raw user id, so the draft is fetched for its league_id and
+ * the league for its users. Neither is essential: when a draft has no league
+ * (a mock, say) the caller still gets an empty map and falls back to slots.
+ */
+export async function getDraftTeams(draftId: string): Promise<DraftTeams> {
+  const res = await fetch(`${SLEEPER_API_BASE}/draft/${draftId}`)
+  if (!res.ok) throw new Error(`Failed to fetch draft: ${res.status}`)
+
+  const draft: SleeperDraft = await res.json()
+  const draftOrder = draft.draft_order ?? {}
+  const teams =
+    Number(draft.settings?.teams) ||
+    Object.keys(draft.slot_to_roster_id ?? {}).length ||
+    Object.keys(draftOrder).length
+
+  const ownerNames: Record<string, string> = {}
+  if (draft.league_id) {
+    try {
+      for (const user of await getUsers(draft.league_id)) {
+        ownerNames[String(user.user_id)] =
+          user.metadata?.team_name?.trim() || user.display_name || String(user.user_id)
+      }
+    } catch {
+      // Names are a nicety; slots still identify every team.
+    }
+  }
+
+  return { ownerNames, draftOrder, teams }
+}
+
 /**
  * Fetch NFL player metadata
  */

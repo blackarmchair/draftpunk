@@ -8,6 +8,7 @@ export interface SleeperDraftPicksResponse {
   pick_no: number
   player_id: string
   picked_by: string
+  draft_slot?: number
   metadata?: {
     first_name?: string
     last_name?: string
@@ -119,7 +120,9 @@ export class SleeperService {
             position: 'PICK',
             team: '',
             pickedBy: pick.picked_by || '',
-            isMyPick: false
+            isMyPick: false,
+            draftSlot: pick.draft_slot,
+            rookiePickNumber: kickerCount
           })
           continue
         }
@@ -138,7 +141,8 @@ export class SleeperService {
             position: position || '',
             team: pick.metadata?.team || '',
             pickedBy: pick.picked_by || '',
-            isMyPick: false
+            isMyPick: false,
+            draftSlot: pick.draft_slot
           })
         }
       }

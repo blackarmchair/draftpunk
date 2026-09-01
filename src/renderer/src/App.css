@@ -1252,3 +1252,417 @@ tr.taken {
   animation: fadeInUp 0.4s var(--ease-out) both;
   animation-delay: 0.25s;
 }
+
+/* ============================================================
+   PICK GRADES
+   ============================================================ */
+
+:root {
+  --grade-great: #3ecf5c;
+  --grade-great-bg: rgba(62, 207, 92, 0.16);
+  --grade-good: #5bb8f5;
+  --grade-good-bg: rgba(91, 184, 245, 0.16);
+  --grade-fair: #f5a623;
+  --grade-fair-bg: rgba(245, 166, 35, 0.16);
+  --grade-poor: #fb923c;
+  --grade-poor-bg: rgba(251, 146, 60, 0.16);
+  --grade-bad: #ef4444;
+  --grade-bad-bg: rgba(239, 68, 68, 0.16);
+}
+
+.tone-great { color: var(--grade-great); background: var(--grade-great-bg); }
+.tone-good { color: var(--grade-good); background: var(--grade-good-bg); }
+.tone-fair { color: var(--grade-fair); background: var(--grade-fair-bg); }
+.tone-poor { color: var(--grade-poor); background: var(--grade-poor-bg); }
+.tone-bad { color: var(--grade-bad); background: var(--grade-bad-bg); }
+
+/* Grade badge on a timeline pick card */
+.pick-grade {
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  min-width: 20px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 0.15rem 0.3rem;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+}
+
+.pick-grade-detail {
+  margin-top: 0.2rem;
+  font-size: 0.55rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Team grade in the My Team header */
+.my-team-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.team-grade {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-full);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.team-grade-denominator {
+  font-size: 0.65rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+/* Grade on a My Team roster row */
+.roster-player .roster-name {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.roster-grade-detail {
+  font-size: 0.62rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.roster-grade {
+  min-width: 26px;
+  text-align: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.35rem;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.roster-grade.ungraded {
+  color: var(--text-muted);
+  background: transparent;
+}
+
+/* Value curve controls */
+.curve-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+.curve-toggle input {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+.curve-help {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin: 0 0 0.6rem;
+}
+
+.curve-error {
+  color: var(--secondary);
+}
+
+.curve-attribution {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--border-default);
+}
+
+.curve-attribution:hover {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.pool-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.35rem;
+}
+
+.pool-suggestion {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  margin-bottom: 0.7rem;
+  background: var(--secondary-muted);
+  border: 1px solid rgba(245, 166, 35, 0.35);
+  border-radius: var(--radius-md);
+}
+
+.pool-suggestion strong {
+  font-size: 0.78rem;
+  color: var(--secondary);
+}
+
+.pool-suggestion span {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.pool-suggestion .load-button {
+  align-self: flex-start;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.72rem;
+}
+
+.pool-warning {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem;
+  margin-bottom: 0.7rem;
+  background: var(--danger-muted);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  border-radius: var(--radius-md);
+}
+
+.pool-warning strong {
+  font-size: 0.75rem;
+  color: var(--danger);
+  line-height: 1.35;
+}
+
+.pool-warning span {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.pool-warning .load-button {
+  align-self: flex-start;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.72rem;
+}
+
+/* ============================================================
+   TEAMS BOARD
+   ============================================================ */
+
+.teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+}
+
+.team-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.team-card.mine {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-muted);
+}
+
+.team-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.team-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.team-card-title h3 {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-mine-badge {
+  flex-shrink: 0;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  padding: 0.12rem 0.35rem;
+  border-radius: var(--radius-sm);
+  background: var(--accent);
+  color: var(--text-inverse);
+}
+
+.team-card-sub {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.team-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.count-chip {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 0.12rem 0.35rem;
+  border-radius: var(--radius-full);
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.count-chip.pos-qb { color: var(--pos-qb); }
+.count-chip.pos-rb { color: var(--pos-rb); }
+.count-chip.pos-wr { color: var(--pos-wr); }
+.count-chip.pos-te { color: var(--pos-te); }
+.count-chip.pos-pick { color: var(--pos-pick); }
+
+.team-mine-toggle {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  font-weight: 600;
+  padding: 0.2rem 0.45rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.team-mine-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.team-picks {
+  padding: 0.3rem;
+}
+
+.team-pick {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.45rem;
+  border-radius: var(--radius-sm);
+}
+
+.team-pick:hover {
+  background: var(--bg-hover);
+}
+
+.team-pick-no {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 34px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.team-pick-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+}
+
+.team-pick-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.team-pick-detail {
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.team-pick-pos {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.team-pick-pos.pos-qb { color: var(--pos-qb); }
+.team-pick-pos.pos-rb { color: var(--pos-rb); }
+.team-pick-pos.pos-wr { color: var(--pos-wr); }
+.team-pick-pos.pos-te { color: var(--pos-te); }
+.team-pick-pos.pos-pick { color: var(--pos-pick); }
+
+.team-grade.ungraded {
+  color: var(--text-muted);
+  background: transparent;
+}
+
+.teams-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+}
+
+.anon-toggle {
+  background: transparent;
+  border: 1px solid var(--border-default);
+  color: var(--text-muted);
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.22rem 0.55rem;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.15s var(--ease-out);
+}
+
+.anon-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.anon-toggle.active {
+  background: var(--accent-muted);
+  border-color: var(--accent);
+  color: var(--accent);
+}
